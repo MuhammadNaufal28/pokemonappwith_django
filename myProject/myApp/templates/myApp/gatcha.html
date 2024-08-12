@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gatcha Pokémon</title>
+</head>
+<body>
+    <h1>Gatcha Pokémon</h1>
+
+    <!-- Form untuk memilih lokasi dan melakukan gatcha -->
+    <form method="POST" action="{% url 'gatcha' %}">
+        {% csrf_token %}
+        <label for="location">Select Location:</label>
+        <select id="location" name="location" required>
+            <option value="forest">Forest</option>
+            <option value="cave">Cave</option>
+            <option value="mountain">Mountain</option>
+            <option value="sea">Sea</option>
+        </select>
+        <button type="submit">Gatcha Pokémon</button>
+    </form>
+    <form method="GET" action="{% url 'home' %}">
+        <button type="submit">Back to home</button>
+    </form>
+
+    {% if gatcha_result %}
+        <h2>Gatcha Result</h2>
+        <div>
+            <img src="{{ gatcha_result.sprites.front_default }}" alt="{{ gatcha_result.name }}" style="width:150px;height:150px;">
+            <p><strong>Name:</strong> {{ gatcha_result.name }}</p>
+            <p><strong>Location:</strong> {{ gatcha_result.location }}</p>
+            <p><strong>Gender:</strong> {{ gatcha_result.gender }}</p>
+            <p><strong>Height:</strong> {{ gatcha_result.height }} decimetres</p>
+            <p><strong>Weight:</strong> {{ gatcha_result.weight }} hectograms</p>
+            <p><strong>Base Experience:</strong> {{ gatcha_result.base_experience }}</p>
+        </div>
+    {% endif %}
+    
+</body>
+</html>

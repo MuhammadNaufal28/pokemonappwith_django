@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Pokémon</title>
+    {% load static %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('#ability').change(function(){
+                var ability = $(this).val();
+                if (ability) {
+                    $.ajax({
+                        url: "{% url 'ability_detail' 'dummy' %}".replace('dummy', ability),
+                        method: 'GET',
+                        success: function(data) {
+                            $('#ability-effect').text(data.effect);
+                            $('#ability-effect-copy').text(''); // Clear previous copy
+                        },
+                        error: function() {
+                            $('#ability-effect').text('Error fetching ability details.');
+                        }
+                    });
+                }
+            });
+
+            $('#copy-button').click(function(){
+                var ability = $('#ability').val();
+                if (ability) {
+                    $.ajax({
+                        url: "{% url 'translate_ability_effect' 'dummy' %}".replace('dummy', ability),
+                        method: 'GET',
+                        success: function(data) {
+                            $('#ability-effect-copy').text(data.translated_effect);
+                        },
+                        error: function() {
+                            $('#ability-effect-copy').text('Error translating ability effect.');
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Select Pokémon</h1>
+    
+    <!-- Form untuk mencari Pokémon -->
+    <form method="GET" action="{% url 'home' %}">
+        <label for="pokemon_name">Enter Pokémon Name:</label>
+        <input type="text" id="pokemon_name" name="pokemon_name" required>
+        <button type="submit">Search</button>
+    </form>
+    <form method="GET" action="{% url 'gatcha' %}">
+        <button type="submit">Gatcha Pokémon</button>
+    </form>
+
+    {% if pokemon_data %}
+        <h2>Pokémon Details</h2>
+        <div>
+            <img src="{{ pokemon_data.sprites.front_default }}" alt="{{ pokemon_data.name }}" style="width:150px;height:150px;">
+            <p><strong>Name:</strong> {{ pokemon_data.name }}</p>
+            <p><strong>Height:</strong> {{ pokemon_data.height }} decimetres</p>
+            <p><strong>Weight:</strong> {{ pokemon_data.weight }} hectograms</p>
+            <p><strong>Base Experience:</strong> {{ pokemon_data.base_experience }}</p>
+            <p><strong>Types:</strong> 
+                <ul>
+                    {% for type in pokemon_data.types %}
+                        <li>{{ type.type.name }}</li>
+                    {% endfor %}
+                </ul>
+            </p>
+
+            <!-- Form untuk memilih ability -->
+            <form method="GET" action="{% url 'home' %}">
+                <label for="ability">Select Ability:</label>
+                <select id="ability" name="ability">
+                    {% for ability in pokemon_data.abilities %}
+                        <option value="{{ ability.ability.name }}">{{ ability.ability.name }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+
+            <p><strong>Ability Effect:</strong> <span id="ability-effect"></span></p>
+            <button id="copy-button">Translate to English</button>
+            <p><strong>Ability Effect in English:</strong> <span id="ability-effect-copy"></span></p>
+        </div>
+    {% endif %}
+</body>
+</html>
